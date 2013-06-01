@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
 # get_okato_codes.py
+# About: Get all OCATO codes from 112.ru to further use for grabbing data, 112.ru uses outdated codes, so updated codes can't be used.
 # Author: Maxim Dubinin (sim@gis-lab.info)
 # Created: 15:50 11.05.2013
 # ---------------------------------------------------------------------------
@@ -8,6 +9,8 @@
 import urllib2,urllib
 import xml.etree.ElementTree as ET
 import ucsv as csv
+import zipfile,zlib
+import os
 
 def get_codes():
     urlbase = "http://112.ru/publish/00/00/"
@@ -72,10 +75,16 @@ def get_codes():
                                                         OKATO3NM=u"не загружено",
                                                         URL=urllist))
 if __name__ == '__main__':
-    f_okato = open("okato_codes.csv","wb")
+    f_okato = open("res/okato_codes.csv","wb")
     fieldnames_okato = ("FEDCODE","FEDNAME","OKATO1","OKATO1NM","OKATO2","OKATO2NM","OKATO3","OKATO3NM","URL")
     csvwriter_okato = csv.DictWriter(f_okato, fieldnames=fieldnames_okato)
     
     get_codes()
     
     f_okato.close()
+    
+    #zip results
+    os.chdir("res")
+    fOkatoz = zipfile.ZipFile("okato_codes.zip",'w')
+    fOkatoz.write("okato_codes.csv", compress_type=zipfile.ZIP_DEFLATED)
+    fOkatoz.close()

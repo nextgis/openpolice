@@ -4,7 +4,7 @@
 # Author: Maxim Dubinin (sim@gis-lab.info)
 # About: Grab 112.ru data on участковые, creates two tables linked with unique id, policemen and locations they are responsible for.
 # Created: 13:26 07.05.2013
-# Usage example: 
+# Usage example: python police.py 45000000000
 # ---------------------------------------------------------------------------
 
 import urllib2,urllib
@@ -12,15 +12,22 @@ import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 import ucsv as csv
 import re
+import sys
+import os
+import zipfile,zlib
 
 def process(filt):
     filt = int(filt)
-    f_okato = open("okato_codes.csv",'rb')
+    f_okato = open("res/okato_codes.csv",'rb')
     csvreader = csv.DictReader(f_okato)
     for row in csvreader:
-        if filt == row['OKATO1'] or filt == row['OKATO2'] or filt == row['OKATO3']:
+        if filt == row['OKATO1'] or filt == row['OKATO2'] or filt == row['OKATO3'] or filt == 0:
             final = "http://112.ru/publish/00/00/uum/" + str(row['OKATO1']) + "/" + str(row['OKATO2']) + "/" + str(row['OKATO3'])
-            parse_man(final,str(row['OKATO3']))
+            if str(row['OKATO3']) != '':
+                okato = str(row['OKATO3'])
+            else:
+                okato = str(row['OKATO2'])
+            parse_man(final,okato)
         
 def get_photo(photo_url,man_id):
     try:
@@ -58,12 +65,13 @@ def get_photo(photo_url,man_id):
     return get_photo_status
         
 def parse_man(url,okato):
+    print(url + "/contents.xml")
     res = urllib2.urlopen(url + "/contents.xml")
     tree = ET.parse(res)
     for doc in tree.findall('doc'):
         val = doc[0].attrib['file']
         if 'file' in val:
-            url_file = url + "/" + val
+            url_file = url + val
             man_id = okato + "_" + val.replace(".html","")
             print(url_file)
             res = urllib2.urlopen(url_file)
@@ -109,16 +117,35 @@ def parse_man(url,okato):
 
 
 if __name__ == '__main__':
-    f_geo = open("RU-MOW.csv","wb")
-    f_man = open("RU-MOW-man.csv","wb")
+    args = sys.argv[ 1: ]
+    
+    if len(args) == 1:
+        filt = args[0] #use 45000000000 for RU-MOW
+    else:
+        filt = 0    # get everything
+    
+    loc_name = "loc.csv"
+    locz_name = "loc.zip"
+    man_name = "man.csv"
+    manz_name = "man.zip"
+    
+    f_geo = open("res/" + loc_name,"wb")
+    f_man = open("res/" + man_name,"wb")
     fieldnames_geo = ("ID","addr_o")
     fieldnames_man = ("ID","NAME","TYPE","RANK","PHONE","URL")
     csvwriter_geo = csv.DictWriter(f_geo, fieldnames=fieldnames_geo)
     csvwriter_man = csv.DictWriter(f_man, fieldnames=fieldnames_man)
     
-    filt = "45000000000"
-    if filt == None: filt = 0
     process(filt)
     
     f_man.close()
     f_geo.close()
+    
+    #zip results
+    os.chdir("res")
+    fLocz = zipfile.ZipFile(locz_name,'w')
+    fLocz.write(loc_name, compress_type=zipfile.ZIP_DEFLATED)
+    fLocz.close()
+    fManz = zipfile.ZipFile(manz_name,'w')
+    fManz.write(man_name, compress_type=zipfile.ZIP_DEFLATED)
+    fManz.close()
