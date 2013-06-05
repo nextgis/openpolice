@@ -40,14 +40,13 @@ def get_codes():
                     urllist = urlbase_okato + itemcode0 + "/" + okato_lvl1 + "/" + okato_lvl2 + "/content.xml" #http://112.ru/publish/00/00/okato/1/45000000000/content.xml
                     
                     #write OKATO1, OKATO2 record
-                    final = urlbase_data + okato_lvl1 + "/" + okato_lvl2 + "/" + "contents.xml"
+                    #final = urlbase_data + okato_lvl1 + "/" + okato_lvl2 + "/" + "contents.xml"
                     csvwriter_okato.writerow(dict(FEDCODE=itemcode0,
                                                   FEDNAME=itemname,
                                                   OKATO1=okato_lvl1,
                                                   OKATO1NM=okato_lvl1nm,
                                                   OKATO2=okato_lvl2,
-                                                  OKATO2NM=okato_lvl2nm,
-                                                  URL=final))
+                                                  OKATO2NM=okato_lvl2nm))
                     
                     res_lvl3 = urllib.urlopen(urllist)
                     if res_lvl3.getcode() != 404:
@@ -55,7 +54,7 @@ def get_codes():
                         for item_lvl3 in tree_lvl3.findall('item'):
                             okato_lvl3 = item_lvl3.attrib['code']
                             okato_lvl3nm = item_lvl3.attrib['name']
-                            final = urlbase_data + okato_lvl1 + "/" + okato_lvl2 + "/" + okato_lvl3 + "/" + "contents.xml"
+                            #final = urlbase_data + okato_lvl1 + "/" + okato_lvl2 + "/" + okato_lvl3 + "/" + "contents.xml"
                             csvwriter_okato.writerow(dict(FEDCODE=itemcode0,
                                                         FEDNAME=itemname,
                                                         OKATO1=okato_lvl1,
@@ -63,8 +62,7 @@ def get_codes():
                                                         OKATO2=okato_lvl2,
                                                         OKATO2NM=okato_lvl2nm,
                                                         OKATO3=okato_lvl3,
-                                                        OKATO3NM=okato_lvl3nm,
-                                                        URL=final))
+                                                        OKATO3NM=okato_lvl3nm))
             else:
                 csvwriter_okato.writerow(dict(FEDCODE=itemcode0,
                                                         FEDNAME=itemname,
@@ -73,11 +71,10 @@ def get_codes():
                                                         OKATO2=9999999999999,
                                                         OKATO2NM=u"не загружено",
                                                         OKATO3=9999999999999,
-                                                        OKATO3NM=u"не загружено",
-                                                        URL=urllist))
+                                                        OKATO3NM=u"не загружено"))
 if __name__ == '__main__':
     f_okato = open("res/okato_codes.csv","wb")
-    fieldnames_okato = ("FEDCODE","FEDNAME","OKATO1","OKATO1NM","OKATO2","OKATO2NM","OKATO3","OKATO3NM","URL")
+    fieldnames_okato = ("FEDCODE","FEDNAME","OKATO1","OKATO1NM","OKATO2","OKATO2NM","OKATO3","OKATO3NM")
     csvwriter_okato = csv.DictWriter(f_okato, fieldnames=fieldnames_okato)
     
     get_codes()
