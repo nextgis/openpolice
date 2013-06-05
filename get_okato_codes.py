@@ -38,6 +38,17 @@ def get_codes():
                     okato_lvl2 = item_lvl2.attrib['code']
                     okato_lvl2nm = item_lvl2.attrib['name']
                     urllist = urlbase_okato + itemcode0 + "/" + okato_lvl1 + "/" + okato_lvl2 + "/content.xml" #http://112.ru/publish/00/00/okato/1/45000000000/content.xml
+                    
+                    #write OKATO1, OKATO2 record
+                    final = urlbase_data + okato_lvl1 + "/" + okato_lvl2 + "/" + "contents.xml"
+                    csvwriter_okato.writerow(dict(FEDCODE=itemcode0,
+                                                  FEDNAME=itemname,
+                                                  OKATO1=okato_lvl1,
+                                                  OKATO1NM=okato_lvl1nm,
+                                                  OKATO2=okato_lvl2,
+                                                  OKATO2NM=okato_lvl2nm,
+                                                  URL=final))
+                    
                     res_lvl3 = urllib.urlopen(urllist)
                     if res_lvl3.getcode() != 404:
                         tree_lvl3 = ET.parse(res_lvl3)
@@ -54,16 +65,6 @@ def get_codes():
                                                         OKATO3=okato_lvl3,
                                                         OKATO3NM=okato_lvl3nm,
                                                         URL=final))
-                    else:
-                        final = urlbase_data + okato_lvl1 + "/" + okato_lvl2 + "/" + "contents.xml"
-                        csvwriter_okato.writerow(dict(FEDCODE=itemcode0,
-                                                      FEDNAME=itemname,
-                                                      OKATO1=okato_lvl1,
-                                                      OKATO1NM=okato_lvl1nm,
-                                                      OKATO2=okato_lvl2,
-                                                      OKATO2NM=okato_lvl2nm,
-                                                      URL=final))
-        
             else:
                 csvwriter_okato.writerow(dict(FEDCODE=itemcode0,
                                                         FEDNAME=itemname,
