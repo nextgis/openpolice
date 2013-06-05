@@ -107,6 +107,7 @@ def parse_man(url,okato):
                                     TYPE=type.strip(),
                                     RANK=rank.strip(),
                                     PHONE=phone.strip().replace("  "," ").replace(u"Телефон: ",""),
+                                    PHOTO_URL=photo_url,
                                     URL=url_file))
             lis = soup.findAll('li')
             for li in lis:
@@ -144,7 +145,7 @@ if __name__ == '__main__':
     f_geo = open("res/" + loc_name,"wb")
     f_man = open("res/" + man_name,"wb")
     fieldnames_geo = ("ID","addr_o")
-    fieldnames_man = ("ID","NAME","TYPE","RANK","PHONE","URL")
+    fieldnames_man = ("ID","NAME","TYPE","RANK","PHONE","PHOTO_URL","URL")
     csvwriter_geo = csv.DictWriter(f_geo, fieldnames=fieldnames_geo)
     csvwriter_man = csv.DictWriter(f_man, fieldnames=fieldnames_man)
     
