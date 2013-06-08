@@ -15,6 +15,15 @@ import re
 import sys
 import os
 import zipfile,zlib
+from datetime import datetime
+
+
+def log(message,curdate):
+    flog = open(wd + "/log.txt","a")
+    str = curdate + " " + datetime.now().strftime("%H-%M-%S") + ":         "
+    str = str + message
+    flog.write(str + "\n")
+    flog.close()
 
 def process(filt):
     filt = int(filt)
@@ -30,7 +39,7 @@ def process(filt):
             
             try:
                 res = urllib2.urlopen(final + "/contents.xml")
-                parse_man(final,okato)
+                parse_man(final,okato,row)
             except urllib2.URLError, e:
                 #import pdb;pdb.set_trace()
                 get_photo_status = False
@@ -76,7 +85,7 @@ def get_photo(photo_url,man_id):
         get_photo_status = True
     return get_photo_status
         
-def parse_man(url,okato):
+def parse_man(url,okato,row):
     #print(url + "/contents.xml")
     res = urllib2.urlopen(url + "/contents.xml")
     tree = ET.parse(res)
@@ -92,45 +101,56 @@ def parse_man(url,okato):
             get_photo_status = get_photo(photo_url,man_id)
             
             divs = soup.findAll('div')
-            name = list(soup.find("div", { "class" : "uchbold" }).strings)[0]
-            sign = list(soup.find("div", { "style" : "margin-top: 7px" }).strings)[0]
-            type = sign.split(",")[0]
-            rank = sign.split(",")[1]
-            if len(list(soup.find("div", { "style" : "margin-top: 7px" }).strings)) > 1:
-                phone = list(soup.find("div", { "style" : "margin-top: 7px" }).strings)[1]
+            if soup.find("div", { "class" : "uchbold" }) == None:
+                message = "Something is wrong, " + url_file
+                log(message,curdate)
             else:
-                phone = u"не указан"
-            
-            #write to man file
-            csvwriter_man.writerow(dict(ID=man_id,
-                                    NAME=name.strip(),
-                                    TYPE=type.strip(),
-                                    RANK=rank.strip(),
-                                    PHONE=phone.strip().replace("  "," ").replace(u"Телефон: ",""),
-                                    PHOTO_URL=photo_url,
-                                    URL=url_file))
-            lis = soup.findAll('li')
-            for li in lis:
-                str = list(li.strings)[0]
-                uldoma = str.split(u", дома: ")
-                ul = uldoma[0]
-                if len(uldoma) > 1:
-                    try:
-                        #TODO: handle 44-1 (example: http://112.ru/publish/00/00/uum/45000000000/45277000000/45277595000/file9.html)
-                        #TODO: handle 23-25, 1 - 25 (example: http://112.ru/publish/00/00/uum/45000000000/45280000000/45280569000/file1.html)
-                        doma = map(unicode, re.findall(r'(\d+\s*(?:\(.*?\))*)', uldoma[1])) #split(",")
-                    except:
-                        print(uldoma[1])
+                name = list(soup.find("div", { "class" : "uchbold" }).strings)[0]
+                sign = list(soup.find("div", { "style" : "margin-top: 7px" }).strings)[0]
+                type = sign.split(",")[0]
+                rank = sign.split(",")[1]
+                if len(list(soup.find("div", { "style" : "margin-top: 7px" }).strings)) > 1:
+                    phone = list(soup.find("div", { "style" : "margin-top: 7px" }).strings)[1]
                 else:
-                    doma = ("")
-                for dom in doma:
-                    #write to geo file
-                    csvwriter_geo.writerow(dict(ID=man_id,
-                                    addr_o=u"Москва, " + ul.strip() + ", " + dom.strip()))
+                    phone = u"не указан"
+                
+                #write to man file
+                csvwriter_man.writerow(dict(ID=man_id,
+                                        NAME=name.strip(),
+                                        TYPE=type.strip(),
+                                        RANK=rank.strip(),
+                                        PHONE=phone.strip().replace("  "," ").replace(u"Телефон: ",""),
+                                        PHOTO_URL=photo_url,
+                                        URL=url_file))
+                lis = soup.findAll('li')
+                for li in lis:
+                    str = list(li.strings)[0]
+                    uldoma = str.split(u", дома: ")
+                    ul = uldoma[0]
+                    if len(uldoma) > 1:
+                        try:
+                            #TODO: handle 44-1 (example: http://112.ru/publish/00/00/uum/45000000000/45277000000/45277595000/file9.html)
+                            #TODO: handle 23-25, 1 - 25 (example: http://112.ru/publish/00/00/uum/45000000000/45280000000/45280569000/file1.html)
+                            doma = map(unicode, re.findall(r'(\d+\s*(?:\(.*?\))*)', uldoma[1])) #split(",")
+                        except:
+                            print(uldoma[1])
+                    else:
+                        doma = ("")
+                    for dom in doma:
+                        if row['OKATO3NM'] != "":
+                            okato3 = ", " + row['OKATO3NM'] + ", "
+                        else:
+                            okato3 = ", "
+                        #write to geo file
+                        csvwriter_geo.writerow(dict(ID=man_id,
+                                        #addr_o=u"Москва, " + ul.strip() + ", " + dom.strip()))
+                                        addr_o = row['OKATO1NM'] + ", " + row['OKATO2NM'] + okato3 + ul.strip() + ", " + dom.strip()))
 
 
 if __name__ == '__main__':
     args = sys.argv[ 1: ]
+    wd = os.getcwd()
+    curdate = datetime.now().strftime("%Y%m%d")
     
     if len(args) == 1:
         filt = args[0] #use 45000000000 for RU-MOW
