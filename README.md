@@ -1,8 +1,14 @@
-openpolice
+mypolice
 ==========
 
-Grabber for 112.ru website
+Grabbers for data on police in Russia. 
 
-Collection of scripts to grab and parse information on local policemen and related organizations
+Collection of scripts to grab and parse information on local policemen and related organizations.
 
-More: http://gis-lab.info/qa/openpolice.html
+Sources:
+
+* version 1 - 112.ru (discontinued)
+* version 2 - mvd.ru (working)
+
+
+Details (Russian): http://gis-lab.info/qa/openpolice.html
