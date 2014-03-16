@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# police-mvd.py
+# get_police_stations-v1.py
 # Author: Maxim Dubinin (sim@gis-lab.info)
 # About: Grab 112.ru data on участковые, creates two tables linked with unique id, policemen and locations they are responsible for.
 # Created: 13:26 07.05.2013
-# Usage example: python police-mvd.py 45000000000
+# Usage example: python get_police_stations-v1.py 45000000000
 # ---------------------------------------------------------------------------
 
 import urllib2,urllib
