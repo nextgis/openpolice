@@ -1,4 +1,4 @@
-mypolice
+openpolice
 ==========
 
 Grabbers for data on police in Russia. 
@@ -12,3 +12,7 @@ Sources:
 
 
 Details (Russian): http://gis-lab.info/qa/openpolice.html
+
+License
+-------------
+This program is licensed under GNU GPL v2 or any later version
